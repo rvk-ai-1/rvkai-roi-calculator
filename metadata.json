@@ -1,0 +1,5 @@
+{
+  "name": "RVKAI ROI Calculator",
+  "description": "An interactive dashboard to calculate the potential revenue impact and cost savings using RVKAI products.",
+  "requestFramePermissions": []
+}
