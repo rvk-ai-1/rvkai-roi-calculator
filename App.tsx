@@ -54,18 +54,29 @@ const App: React.FC = () => {
   const ellaAnnualRevenue = ellaMonthlyRevenue * 12;
 
   // 2. Outbound Lost Opportunity (Juliana)
-  const qualifiedLeads = state.monthlyInboundCalls * state.qualifiedLeadsPercent;
-  // Ensure dead leads doesn't go below zero if admissions > qualified leads
-  const deadLeads = Math.max(0, qualifiedLeads - state.monthlyAdmissions); 
-  const julianaCallsHandled = deadLeads * state.callsPerLead;
-  const julianaAddAdmissions = julianaCallsHandled * state.deadLeadConversionRate;
+  // Total Calls = from global assumptions (monthlyInboundCalls)
+  const totalCalls = state.monthlyInboundCalls;
+  // Qualified Opportunities = Total Calls × Qualified %
+  const qualifiedOpportunities = totalCalls * state.qualifiedOpportunitiesPercent;
+  // Admissions = from global assumptions
+  const admissions = state.monthlyAdmissions;
+  // Lost Opportunities = Qualified Opportunities - Admissions
+  const lostOpportunities = Math.max(0, qualifiedOpportunities - admissions);
+  // Outbound Calls by Juliana = Lost Opportunities × 4
+  const julianaCallsHandled = lostOpportunities * 4;
+  // Additional Admits = 0.6% × Lost Opportunities
+  const julianaAddAdmissions = lostOpportunities * state.lostOpportunityConversionRate;
   const julianaMonthlyRevenue = julianaAddAdmissions * state.avgNetPatientRevenue;
   const julianaAnnualRevenue = julianaMonthlyRevenue * 12;
 
   // 3. Alumni Re-Admission (Sophy)
-  const eligibleAlumni = state.alumniDatabaseSize * state.alumniEligibleRate;
-  const sophyCallsHandled = eligibleAlumni * state.callsPerAlumni;
-  const sophyAddAdmissions = sophyCallsHandled * state.alumniConversionRate;
+  // Total Alumni = alumniDatabaseSize (input)
+  // Outbound Calls by Connie = alumni × 4
+  const sophyOutboundCalls = state.alumniDatabaseSize * 4;
+  // Contacts per month = alumniContactsPerMonth (input)
+  // For every 200 contacted → 1 admission (or use conversion rate of 0.5%)
+  // Formula: 5 admissions for every 1000 in database = 0.5% conversion
+  const sophyAddAdmissions = state.alumniDatabaseSize * state.alumniConversionRate;
   const sophyMonthlyRevenue = sophyAddAdmissions * state.avgNetPatientRevenue;
   const sophyAnnualRevenue = sophyMonthlyRevenue * 12;
 
@@ -254,15 +265,17 @@ const App: React.FC = () => {
             {expandedCards.has('juliana') && (
               <div className="px-4 pb-4 border-t border-slate-100">
                 <div className="mt-4 bg-slate-50 p-3 rounded-lg space-y-1">
-                  <Input label="Qualified Leads %" value={state.qualifiedLeadsPercent} isPercentage step="0.01" onChange={(e) => handleInputChange('qualifiedLeadsPercent', e.target.value)} />
-                  <Input label="Calls per Lead" value={state.callsPerLead} onChange={(e) => handleInputChange('callsPerLead', e.target.value)} />
-                  <Input label="Conversion Rate" value={state.deadLeadConversionRate} isPercentage step="0.001" onChange={(e) => handleInputChange('deadLeadConversionRate', e.target.value)} />
+                  <Input label="Qualified Opportunities %" value={state.qualifiedOpportunitiesPercent} isPercentage step="0.01" onChange={(e) => handleInputChange('qualifiedOpportunitiesPercent', e.target.value)} />
+                  <Input label="Conversion Rate" subLabel="0.6% of lost opps" value={state.lostOpportunityConversionRate} isPercentage step="0.001" onChange={(e) => handleInputChange('lostOpportunityConversionRate', e.target.value)} />
                 </div>
                 <div className="mt-3 space-y-1">
-                  <ResultRow label="Qualified Leads" value={formatNumber(qualifiedLeads)} />
-                  <ResultRow label="Dead Leads" value={formatNumber(deadLeads)} />
-                  <ResultRow label="Calls Handled" value={formatNumber(julianaCallsHandled)} />
-                  <ResultRow label="Monthly Revenue" value={formatCurrency(julianaMonthlyRevenue)} highlight />
+                  <ResultRow label="Total Calls" value={formatNumber(totalCalls)} subValue="From Global Assumptions" />
+                  <ResultRow label="# of Qualified Opportunities" value={formatNumber(qualifiedOpportunities)} />
+                  <ResultRow label="Admissions" value={formatNumber(admissions)} subValue="From Global Assumptions" />
+                  <ResultRow label="# of Lost Opportunities" value={formatNumber(lostOpportunities)} />
+                  <ResultRow label="Outbound Calls by Juliana" value={formatNumber(julianaCallsHandled)} subValue="Lost Opps × 4" />
+                  <ResultRow label="# of Additional Admits" value={formatNumber(julianaAddAdmissions, 1)} />
+                  <ResultRow label="Additional Monthly Revenue" value={formatCurrency(julianaMonthlyRevenue)} highlight />
                 </div>
               </div>
             )}
@@ -292,15 +305,15 @@ const App: React.FC = () => {
             {expandedCards.has('sophy') && (
               <div className="px-4 pb-4 border-t border-slate-100">
                 <div className="mt-4 bg-slate-50 p-3 rounded-lg space-y-1">
-                  <Input label="Alumni Database Size" value={state.alumniDatabaseSize} onChange={(e) => handleInputChange('alumniDatabaseSize', e.target.value)} />
-                  <Input label="Eligible Alumni %" value={state.alumniEligibleRate} isPercentage onChange={(e) => handleInputChange('alumniEligibleRate', e.target.value)} />
-                  <Input label="Calls per Alumni" value={state.callsPerAlumni} onChange={(e) => handleInputChange('callsPerAlumni', e.target.value)} />
-                  <Input label="Conversion Rate" value={state.alumniConversionRate} isPercentage step="0.001" onChange={(e) => handleInputChange('alumniConversionRate', e.target.value)} />
+                  <Input label="Total Alumni" value={state.alumniDatabaseSize} onChange={(e) => handleInputChange('alumniDatabaseSize', e.target.value)} />
+                  <Input label="Contacts per Month" value={state.alumniContactsPerMonth} onChange={(e) => handleInputChange('alumniContactsPerMonth', e.target.value)} />
+                  <Input label="Conversion Rate" subLabel="5 admits per 1000 alumni = 0.5%" value={state.alumniConversionRate} isPercentage step="0.001" onChange={(e) => handleInputChange('alumniConversionRate', e.target.value)} />
                 </div>
                 <div className="mt-3 space-y-1">
-                  <ResultRow label="Eligible Alumni" value={formatNumber(eligibleAlumni)} />
-                  <ResultRow label="Calls Handled" value={formatNumber(sophyCallsHandled)} />
-                  <ResultRow label="Additional Admissions" value={formatNumber(sophyAddAdmissions, 1)} />
+                  <ResultRow label="Total Alumni" value={formatNumber(state.alumniDatabaseSize)} />
+                  <ResultRow label="Outbound Calls by Connie" value={formatNumber(sophyOutboundCalls)} subValue="Alumni × 4" />
+                  <ResultRow label="Contacts per Month" value={formatNumber(state.alumniContactsPerMonth)} />
+                  <ResultRow label="Additional Admissions" value={formatNumber(sophyAddAdmissions, 1)} subValue="0.5% of Total Alumni" />
                   <ResultRow label="Monthly Cash Flow" value={formatCurrency(sophyMonthlyRevenue)} highlight />
                 </div>
               </div>

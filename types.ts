@@ -8,15 +8,13 @@ export interface CalculatorState {
   missedCallRate: number; // e.g., 0.1 for 10%
 
   // Outbound Lost Opportunity (Juliana)
-  qualifiedLeadsPercent: number; // e.g., 0.25 for 25%
-  callsPerLead: number;
-  deadLeadConversionRate: number; // e.g., 0.001
+  qualifiedOpportunitiesPercent: number; // e.g., 0.25 for 25%
+  lostOpportunityConversionRate: number; // e.g., 0.006 for 0.6%
 
   // Alumni Re-Admission (Sophy)
   alumniDatabaseSize: number;
-  alumniEligibleRate: number; // New: Percentage of alumni eligible
-  callsPerAlumni: number;
-  alumniConversionRate: number; // e.g., 0.005
+  alumniContactsPerMonth: number; // Contacts per month
+  alumniConversionRate: number; // e.g., 0.005 for 0.5%
 
   // Assessments (Connie)
   annualAssessments: number;
@@ -31,15 +29,13 @@ export const DEFAULT_STATE: CalculatorState = {
   avgNetPatientRevenue: 13000,
   
   missedCallRate: 0.1,
-  
-  qualifiedLeadsPercent: 0.25,
-  callsPerLead: 4,
-  deadLeadConversionRate: 0.001,
-  
+
+  qualifiedOpportunitiesPercent: 0.25,
+  lostOpportunityConversionRate: 0.006, // 0.6% conversion on lost opportunities
+
   alumniDatabaseSize: 1000,
-  alumniEligibleRate: 0.5, // Default 50%
-  callsPerAlumni: 4,
-  alumniConversionRate: 0.005,
+  alumniContactsPerMonth: 200, // Contacts per month
+  alumniConversionRate: 0.005, // 0.5% - 5 admits per 1000 alumni
   
   annualAssessments: 3000,
   minutesPerAssessment: 20, // Default 20 minutes
