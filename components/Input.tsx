@@ -6,15 +6,35 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   isPercentage?: boolean;
 }
 
-export const Input: React.FC<InputProps> = ({ 
-  label, 
-  subLabel, 
-  value, 
-  onChange, 
-  isPercentage = false, 
+export const Input: React.FC<InputProps> = ({
+  label,
+  subLabel,
+  value,
+  onChange,
+  isPercentage = false,
   className,
-  ...props 
+  ...props
 }) => {
+  // For percentages, convert decimal to display value (0.1 -> 10)
+  const displayValue = isPercentage && typeof value === 'number'
+    ? (value * 100).toFixed(2).replace(/\.?0+$/, '')
+    : value;
+
+  // Wrap onChange to convert percentage input back to decimal
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isPercentage && onChange) {
+      const percentValue = parseFloat(e.target.value);
+      const decimalValue = isNaN(percentValue) ? 0 : percentValue / 100;
+      const syntheticEvent = {
+        ...e,
+        target: { ...e.target, value: decimalValue.toString() }
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent);
+    } else if (onChange) {
+      onChange(e);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-100 last:border-0 group hover:bg-slate-50 transition-colors px-2 rounded-md">
       <div className="mb-2 sm:mb-0">
@@ -28,21 +48,22 @@ export const Input: React.FC<InputProps> = ({
       <div className="relative">
         <input
           type="number"
-          step={isPercentage ? "0.001" : "1"}
+          step={isPercentage ? "0.1" : "1"}
           className={`
             w-32 text-right font-semibold text-slate-800 rounded-md border-slate-300 shadow-sm
             bg-blue-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             transition-all duration-200 p-2 text-sm border
+            ${isPercentage ? 'pr-7' : ''}
             ${className}
           `}
-          value={value}
-          onChange={onChange}
+          value={displayValue}
+          onChange={handleChange}
           {...props}
         />
         {isPercentage && (
-            <div className="absolute inset-y-0 right-8 flex items-center pointer-events-none text-slate-400 text-xs">
-                {/* Optional % indicator if we wanted one inside, but separate is cleaner for raw value edits */}
-            </div>
+          <span className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-slate-500 text-sm font-medium">
+            %
+          </span>
         )}
       </div>
     </div>
