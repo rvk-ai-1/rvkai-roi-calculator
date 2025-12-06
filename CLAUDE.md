@@ -19,12 +19,18 @@ Set `GEMINI_API_KEY` in `.env.local` (currently unused in the app but configured
 
 This is a React 19 + TypeScript ROI calculator for RVK AI, built with Vite. The app calculates revenue impact across four AI agent scenarios.
 
+Source files are in the project root (not in a `src/` directory). Entry point: `index.tsx` → `App.tsx`.
+
+### Path Alias
+
+Import using `@/` to reference the project root (configured in `vite.config.ts`).
+
 ### Core Structure
 
 - **`App.tsx`**: Main component containing all calculator logic and UI. Manages state via `useState<CalculatorState>` and performs all ROI calculations inline.
 - **`types.ts`**: Defines `CalculatorState` interface and `DEFAULT_STATE` with all input parameters and their defaults.
 - **`utils.ts`**: Formatting utilities (`formatCurrency`, `formatNumber`, `formatPercent`) using `Intl.NumberFormat`.
-- **`components/`**: Presentational components (`Input`, `ResultRow`, `SectionHeader`).
+- **`components/`**: Presentational components (`Input`, `ResultRow`, `SectionHeader`) - display only, no business logic.
 
 ### Calculator Sections (in App.tsx)
 
