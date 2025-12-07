@@ -45,26 +45,23 @@ export const Input: React.FC<InputProps> = ({
           <span className="text-xs text-slate-400 font-normal">{subLabel}</span>
         )}
       </div>
-      <div className="relative">
+      <div className="flex items-center gap-1">
         <input
           type="number"
           step={isPercentage ? "0.1" : "1"}
           className={`
-            w-32 text-right font-semibold text-slate-800 rounded-md border-slate-300 shadow-sm
+            w-28 text-right font-semibold text-slate-800 rounded-md border-slate-300 shadow-sm
             bg-blue-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             transition-all duration-200 p-2 text-sm border
-            ${isPercentage ? 'pr-7' : ''}
             ${className}
           `}
           value={displayValue}
           onChange={handleChange}
           {...props}
         />
-        {isPercentage && (
-          <span className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-slate-500 text-sm font-medium">
-            %
-          </span>
-        )}
+        <span className={`w-4 text-sm font-medium ${isPercentage ? 'text-slate-500' : 'text-transparent'}`}>
+          %
+        </span>
       </div>
     </div>
   );
